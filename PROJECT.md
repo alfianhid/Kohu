@@ -110,6 +110,19 @@ Source: https://github.com/Tencent/WeKnora (MIT, 36k stars). Tagline: open-sourc
 
 Decision for Kohu: take inspiration from the patterns, write original hackathon code. Do not fork or copy WeKnora code into the judged path. Reasons: hackathon rules require new work only, the demo must only highlight features built during the hackathon, and the judged path must use Meta models through the Meta Model API with Muse Spark. Kohu keeps its own differentiators: license-coverage-aware role filtering applied before retrieval, exact page, cell, and slide citations with a verifier agent, and a conflict-flag agent for recording-versus-document disagreements.
 
+### D8: Logseq as second reference for knowledge UX (Decided 2026-10-31)
+
+Source: https://github.com/logseq/logseq (privacy-first, open-source knowledge management, Markdown and Org-mode, journals, blocks, graph, PDF annotation, tasks, queries, plugin API, local-first).
+
+Decision for Kohu: borrow UX ideas only, write original code. Take blocks with block-level citations, journal-style ingest log, linked references between docs and licensed cells, and query-first navigation. Do not copy Logseq code or bundle Logseq. Reasons: same new-work rule as WeKnora, plus Kohu must stay a small judged slice with Meta models. Logseq ideas that lift the Best Agentic Use-Case story: agent writes back a curated page per answer with kept citations, conflict blocks surface as task items for the Steward, and every agent step lands in an inspectable run log.
+
+### D9: Demo video via Hyperframes desktop app (Decided 2026-10-31)
+
+Source: https://github.com/heygen-com/hyperframes (Apache 2.0, write HTML, render deterministic MP4, CLI plus agent skills, 450 blocks, Node 22 plus FFmpeg). Desktop app already installed on the user's laptop.
+
+Decision: author the three-minute judging video as a Hyperframes project (HTML plus seekable animations, charts, captions), preview locally, render to MP4. Content follows the recommended arc in PLAN.md. No build starts until the user approves PLAN.md.
+
 ## Unresolved Questions
+- [ ] PLAN.md review approval before any build.
 - [ ] CV platform submission link, video hosting choice, and second builder identity.
 - [ ] Meta Model API credit claim per builder ($150 each, claim by Nov 4 9:00 PM ET) and inference partner credits if needed.
