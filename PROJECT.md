@@ -123,6 +123,6 @@ Source: https://github.com/heygen-com/hyperframes (Apache 2.0, write HTML, rende
 Decision: author the three-minute judging video as a Hyperframes project (HTML plus seekable animations, charts, captions), preview locally, render to MP4. Content follows the recommended arc in PLAN.md. No build starts until the user approves PLAN.md.
 
 ## Unresolved Questions
-- [ ] PLAN.md review approval before any build.
+- [x] PLAN.md review approval before any build (Approved 2026-10-31. Waiting for user's first build prompt).
 - [ ] CV platform submission link, video hosting choice, and second builder identity.
 - [ ] Meta Model API credit claim per builder ($150 each, claim by Nov 4 9:00 PM ET) and inference partner credits if needed.
