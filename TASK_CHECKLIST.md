@@ -9,8 +9,8 @@ Audit baseline (live-verified 2026-11-01): corpus 61 chunks, persona matrix 5/7/
 
 - [x] G01 Meta console gate (P00): Spark endpoint/model/image format, Wonder model/endpoint, SAM 3.1 hosted availability/model/endpoint/schema/limits each recorded or marked UNVERIFIED. Done: written gate note exists; no invented endpoint or model id anywhere in code or docs. Evidence: [G01-meta-console-gate.md](G01-meta-console-gate.md) (2026-11-01, official dev.meta.ai docs + BrowserOS Neo authenticated console: Dashboard/Models/API keys/Usage/Segment playground read, Wonder 1,048,576 verified, SAM pixel cap = none published (50 MB + 16-object caps bind), live GET /v1/models = 9 ids; no UNVERIFIED flags remain; api/*.py env-gated only, *.md grep clean).
 - [ ] G02 Credits claimed by both builders ($150 each, before Nov 4 9:00 PM ET), spend limit set. Done: both confirm in chat.
-- [ ] G03 Built code committed and pushed (P01): `api/`, `corpus/`, `ui/`, `seed.sh`, `video/` in the public repo. Done: fresh clone shows built code, not docs only.
-- [ ] G04 Stale docs fixed (P01): README year/status, PROJECT judging dates, false "Spark parses all" and pgvector claims removed or made true. Done: grep finds no claim the code cannot back.
+- [x] G03 Built code committed and pushed (P01): `api/`, `corpus/`, `ui/`, `seed.sh`, `video/` in the public repo. Done: fresh clone shows built code, not docs only. Evidence: pushed 765bb64 (built code) + 4726bd7 (doc fixes) + b3c9eab (HACKATHON note) to main; clean clone to %TEMP%\kohu-fresh contains api/corpus/ui/video/seed.sh, and `./seed.sh` exits 0 with per-source counts 12/9/10/8/10/6/5/1 = 61 chunks.
+- [x] G04 Stale docs fixed (P01): README year/status, PROJECT judging dates, false "Spark parses all" and pgvector claims removed or made true. Done: grep finds no claim the code cannot back. Evidence: README 2026 ET + built status; PROJECT dates carry 2026; Spark = optional captions (extractive synthesis seam), pgvector column present with embeddings NULL / lexical retrieval; fresh-clone grep for false Spark-parse, pre-build/(planned, and vector/hybrid-search claims returns only honest negatives and the WeKnora-reference row.
 - [x] G05 Public repo hygiene on paper: README, LICENSE, `.gitignore`, `HACKATHON.md` marking new work. Evidence: files present; public visibility still to confirm at S03.
 
 ## Phase 1 — Synthetic corpus (A) — audited complete
@@ -18,7 +18,7 @@ Audit baseline (live-verified 2026-11-01): corpus 61 chunks, persona matrix 5/7/
 - [x] T10 8-file manifest with license classes, citation anchors, conflict pair. Evidence: `corpus/verify_manifest.py` PASS, 8 entries, `conflict-01`.
 - [x] T11 2 PDFs with tables and charts. Evidence: `verify_pdfs.py` PASS; tables p.4/p.7, charts p.3/p.6.
 - [x] T12 2 decks (10-slide product, sales with conflict figure on slide 7). Evidence: `verify_decks.py` PASS, slide numbers stable.
-- [x] T13 2 sheets (licensed `Q3-Growth!A1:F200` with `E12=7.1`, performance summary). Evidence: `verify_sheets.py` PASS. Note: builder comments saying "D12" are wrong (D12=6.2, comment only, no data impact) — fix comment when next touched.
+- [x] T13 2 sheets (licensed `Q3-Growth!A1:F200` with `E12=7.1`, performance summary). Evidence: `verify_sheets.py` PASS. Note (resolved 2026-11-01): wrong "D12" comments fixed to E12 in `build_sheets.py` and `build_decks.py`; `verify_sheets.py` PASS confirms E12==7.1.
 - [x] T14 Scanned PDF ingest path. Evidence: chunk text lands from `scanned-note-ocr.txt` sidecar. Caveat: this is a sidecar fallback, not vision reading — true Spark vision read is task V03.
 - [x] T15 Every file stamped `DEMO DATA — FICTIONAL`. Evidence: verify scripts confirm marker in all 8 files.
 
@@ -27,7 +27,7 @@ Audit baseline (live-verified 2026-11-01): corpus 61 chunks, persona matrix 5/7/
 - [x] T20 Postgres + pgvector schema applies clean. Evidence: migrations 0001–0003 applied in live probes.
 - [ ] T21 Ingest honestly labelled: local parsers for structure, Spark only where it actually runs. Done: ingest log and docs state per-file-type what Spark touched; zero `[Spark]` captions in DB is explained (re-run or silent-failure root cause found), not ignored.
 - [x] T22 License tags immutable at query time; retrieval pre-filter before search. Evidence: policy `--probe` PASS, smuggled chunks dropped, no leak.
-- [ ] T23 Fresh-clone seed reproducibility (P01). Done: clone to a clean directory, `./seed.sh`, counts = 61 chunks, no manual steps. Not yet evidenced (needs clean-clone run).
+- [x] T23 Fresh-clone seed reproducibility (P01). Done: clone to a clean directory, `./seed.sh`, counts = 61 chunks, no manual steps. Evidence: clean clone to %TEMP%\kohu-fresh, `./seed.sh` via Git Bash exits 0, per-source 12/9/10/8/10/6/5/1 = 61 chunks (2026-11-01; DB URL from environment since `.env` is git-ignored).
 
 ## Phase 3 — Agentic loop (A) — the Best Agentic core
 
