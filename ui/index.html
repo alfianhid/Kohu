@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kohu ??? Ask</title>
+<link rel="stylesheet" href="styles.css?v=3">
+</head>
+<body>
+<header class="topbar">
+  <div>
+    <h1>Kohu</h1>
+    <p class="sub">Company knowledge hub. Demo data ??? fictional.</p>
+  </div>
+  <div class="session">
+    <span class="label">Persona token</span>
+    <code id="token" data-testid="persona-token">not logged in</code>
+    <span id="current-persona" data-testid="current-persona">none</span>
+  </div>
+</header>
+
+<main>
+  <section aria-labelledby="login-h">
+    <h2 id="login-h">Login as</h2>
+    <div class="logins" role="group" aria-label="Persona login">
+      <button type="button" class="login" data-persona="employee" data-testid="login-employee">
+        <strong>Employee</strong>
+        <span>Handbook, process docs, general reports</span>
+      </button>
+      <button type="button" class="login" data-persona="analyst" data-testid="login-analyst">
+        <strong>Licensed Analyst</strong>
+        <span>Employee set plus licensed sheet and report</span>
+      </button>
+      <button type="button" class="login" data-persona="manager" data-testid="login-manager">
+        <strong>Manager</strong>
+        <span>Employee set plus performance summary</span>
+      </button>
+      <button type="button" class="login" data-persona="steward" data-testid="login-steward">
+        <strong>Data Steward</strong>
+        <span>All sources plus license labels and stubs</span>
+      </button>
+    </div>
+  </section>
+
+  <section aria-labelledby="ask-h">
+    <h2 id="ask-h">Ask</h2>
+    <form id="ask-form">
+      <label for="query">Question</label>
+      <div class="ask-row">
+        <input id="query" data-testid="ask-input" type="text" autocomplete="off"
+               value="What was Q3 growth for product X and what drives it?">
+        <button type="submit" data-testid="ask-submit">Ask</button>
+      </div>
+    </form>
+    <p id="status" role="status"></p>
+    <p id="error" role="alert"></p>
+    <div id="result" data-testid="ask-result" hidden>
+      <p class="meta">Run <code id="run-id"></code> ?? Persona <code id="result-persona"></code>
+        ?? Sources <span id="sources"></span> ?? Dropped <span id="dropped"></span></p>
+      <h3>Answer</h3>
+      <pre id="answer"></pre>
+      <h3>Claims</h3>
+      <ul id="claims"></ul>
+      <div id="stubs-wrap" hidden>
+        <h3>Restricted stubs (Steward)</h3>
+        <ul id="stubs"></ul>
+      </div>
+      <p id="conflict"></p>
+    </div>
+  </section>
+
+  <section aria-labelledby="compare-h">
+    <h2 id="compare-h">Compare: Employee vs Analyst</h2>
+    <button type="button" id="compare-btn" data-testid="compare-btn">Compare same question</button>
+    <p id="compare-diff" data-testid="compare-diff"></p>
+    <div class="compare" id="compare" data-testid="compare" hidden>
+      <article class="compare-col" id="col-employee">
+        <h3>Employee</h3>
+        <p class="meta">Sources <span class="col-sources"></span></p>
+        <pre class="col-answer"></pre>
+        <ul class="col-claims"></ul>
+      </article>
+      <article class="compare-col" id="col-analyst">
+        <h3>Licensed Analyst</h3>
+        <p class="meta">Sources <span class="col-sources"></span></p>
+        <pre class="col-answer"></pre>
+        <ul class="col-claims"></ul>
+      </article>
+    </div>
+  </section>
+
+  <section aria-labelledby="queue-h" id="steward-queue" data-testid="steward-queue" hidden>
+    <h2 id="queue-h">Steward queue</h2>
+    <p id="queue-empty" hidden>No open tasks.</p>
+    <ul id="queue-tasks"></ul>
+  </section>
+
+  <section aria-labelledby="cite-h" id="citation-panel" data-testid="citation-panel" hidden>
+    <h2 id="cite-h">Citation</h2>
+    <p class="meta">Source <code id="cite-source"></code> ?? Location
+      <code id="cite-location" data-testid="cite-location"></code></p>
+    <p id="cite-claim"></p>
+    <div id="cite-viewer" data-testid="cite-viewer"></div>
+    <p><a id="cite-open" href="#" target="_blank" rel="noopener">Open source file</a></p>
+  </section>
+</main>
+<script src="app.js?v=3"></script>
+</body>
+</html>

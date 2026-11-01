@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Node
+node_modules/
+dist/
+.next/
+out/
+
+# Postgres data (local dev volumes and dumps; schema lives in api/migrations/)
+data/postgres/
+*.dump
+*.sql.gz
+pgdata/
+
+# Hyperframes renders (video/ source stays tracked; big outputs do not)
+video/renders/
+video/dist/
+*.mp4
+*.mov
+*.webm
