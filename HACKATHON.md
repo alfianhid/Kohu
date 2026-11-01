@@ -25,7 +25,7 @@ Hackathon rule: the demo must only highlight features, code, and functionality b
 
 | Source | What we took | What we did not take |
 |---|---|---|
-| WeKnora (<https://github.com/Tencent/WeKnora>, MIT) | Architecture patterns: multimodal parse, hybrid retrieval, per-resource RBAC, run tracing, wiki-style chunk diff | No fork, no vendored files, no copied modules. Judged path uses Meta Model API with Muse Spark, not WeKnora's model wiring. |
+| WeKnora (<https://github.com/Tencent/WeKnora>, MIT) | Architecture patterns: multimodal parse (local-only today; Spark captions optional), per-resource RBAC, run tracing, wiki-style chunk diff — not hybrid retrieval (retrieval is lexical, embeddings NULL) | No fork, no vendored files, no copied modules. Judged path uses Meta Model API with Muse Spark, not WeKnora's model wiring. |
 | Logseq (<https://github.com/logseq/logseq>) | UX ideas: block-level citations, journal-style ingest/run log, linked references, conflict blocks as tasks | No copied code, no bundled build. UI is original. |
 | Hyperframes (<https://github.com/heygen-com/hyperframes>, Apache 2.0) | Tool use: author video as HTML scenes, render deterministic MP4 via CLI or desktop app | Renderer only. No Hyperframes source copied into this repo. Rendered `*.mp4` files are git-ignored. |
 
