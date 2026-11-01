@@ -2,7 +2,7 @@
 
 Outputs:
   corpus/licensed-market.xlsx  sheet Q3-Growth, A1:F200 addressable;
-                               D12 = 7.1 (seeded conflict vs sales deck 9.4%)
+                               E12 = 7.1 (seeded conflict vs sales deck 9.4%)
   corpus/performance.xlsx      sheet Summary, A1:E50 addressable (manager-restricted)
 Each file has a Cover sheet stamped DEMO DATA - FICTIONAL with its license label.
 Run:  python corpus/build_sheets.py
@@ -34,7 +34,7 @@ def build_licensed_market(path):
     cover(wb, "Licensed market dataset (demo)", "licensed — Analyst/Steward only")
     ws = wb.create_sheet("Q3-Growth")
     ws.append(["Product", "Region", "Q1 Growth %", "Q2 Growth %", "Q3 Growth %", "Q4 Growth %"])
-    # Rows 2..200: fictional data. Row 12 is the Product X rollup (conflict cell D12=7.1).
+    # Rows 2..200: fictional data. Row 12 is the Product X rollup (conflict cell E12=7.1).
     for r in range(2, 201):
         if r == 12:
             ws.append(["Product X", "All regions", 4.1, 6.2, 7.1, 8.0])
@@ -85,4 +85,4 @@ def build_performance(path):
 if __name__ == "__main__":
     build_licensed_market(os.path.join(HERE, "licensed-market.xlsx"))
     build_performance(os.path.join(HERE, "performance.xlsx"))
-    print("wrote licensed-market.xlsx (Q3-Growth A1:F200, D12=7.1) and performance.xlsx (Summary A1:E50)")
+    print("wrote licensed-market.xlsx (Q3-Growth A1:F200, E12=7.1) and performance.xlsx (Summary A1:E50)")

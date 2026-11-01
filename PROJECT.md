@@ -2,11 +2,11 @@
 
 Status: Draft
 Date: 2026-10-31
-Event: Meta Global AI Developer Hackathon (Remote, Oct 26 12:00 PM – Nov 4 9:00 PM EST)
+Event: Meta Global AI Developer Hackathon (Remote, Oct 26 12:00 PM – Nov 4 9:00 PM ET, 2026)
 
 ## Vision
 
-Kohu is one place where anyone in a company can find what the company knows and what it has paid for. Internal documents, purchased data and reports are ingested as they are, including scanned PDFs, slides, and spreadsheets. Muse Spark reads them, including charts and tables. Employees can search or ask questions. Role-based access, including data license coverage, controls what each person's results and answers can draw from. Every answer cites the page, cell, or video timestamp it came from.
+Kohu is one place where anyone in a company can find what the company knows and what it has paid for. Internal documents, purchased data and reports are ingested as they are, including scanned PDFs, slides, and spreadsheets. Local parsers extract structure today; Muse Spark adds optional chart-slide captions when configured. Employees can search or ask questions. Role-based access, including data license coverage, controls what each person's results and answers can draw from. Every answer cites the page, cell, or slide it came from.
 
 Full vision also includes screen recordings turned into step-by-step guides with reasons preserved, SAM marks on the exact button or field for each step, and an agent that flags conflicts between recordings and documents for owner review.
 
@@ -17,7 +17,7 @@ What was verified from the main event page:
 - Build with Meta's newest models: Muse Spark series, Muse Wonder, Muse Image, and SAM 3.1 through Meta Model API. Open-weights models and Muse Code coding agent are also in scope.
 - Two tracks: Indie developer (individuals and students, judged on creativity, technical ambition, and whether it works) and Startup (teams and founders, judged on technical execution and whether it holds up in production).
 - Two themes: Build for Your World (domain problem you know firsthand) and Push the Frontier (new capability for software, robotics, manufacturing, energy, materials, and beyond).
-- Key dates: applications from Oct 13, deadline Oct 25 (or earlier at 20,000 acceptances), hackathon Oct 26 to Nov 4 9:00 PM ET, judging Nov 4–8, finals Nov 9.
+- Key dates (2026): applications from Oct 13, deadline Oct 25 (or earlier at 20,000 acceptances), hackathon Oct 26 to Nov 4 9:00 PM ET, judging Nov 4–8, finals Nov 9.
 - Applications are reviewed on project idea clarity, feasibility, theme fit, and demonstrated technical skill.
 - Eligibility exclusions apply (sanctioned countries/regions, Meta and Cerebral Valley staff and families, government-affiliated individuals). Official Rules were stated as to be published before the hackathon begins and must be accepted by selected participants.
 
@@ -88,14 +88,14 @@ Source: Participant Guide screenshots provided by user (6 pages, read 2026-10-31
 
 Stack decision for Kohu slice A plus agentic layer:
 
-- API and agents: Python FastAPI service. All model calls go through Meta Model API with Muse Spark for multimodal parse (tables, charts, scanned PDFs, slides, sheets) and for answer synthesis. No closed-model fallback in the judged path.
+- API and agents: Python FastAPI service. Local parsers extract tables, charts, scanned PDFs, slides, and sheets today; Muse Spark on the Meta Model API adds optional chart-slide captions at ingest and is the planned path for answer synthesis (current synthesis is extractive with a `synthesize()` seam). No closed-model fallback in the judged path.
 - Agentic design (this is what keeps Kohu out of the Basic RAG anti-pattern and aims at Best Agentic Use-Case):
   1. Planner agent decomposes each question into subtasks per source type.
   2. Retrieval agents run per source type with role filter applied before retrieval.
   3. Policy agent enforces license class and role, blocks leaks through snippets and citations.
   4. Verifier agent checks every claim against its cited chunk and rejects uncited claims.
   5. Conflict-flag agent marks the one demo case where two sources disagree and routes it to the Steward queue.
-- Data: Postgres with pgvector for chunks plus citation fields (source id, page, cell range, slide number, license class). Synthetic seed files only, all marked as demo data.
+- Data: Postgres chunks table with a pgvector embedding column plus citation fields (source id, page, cell range, slide number, license class). Embeddings are NULL today so retrieval is lexical term counting, not vector search. Synthetic seed files only, all marked as demo data.
 - App: minimal web UI with four persona logins, side-by-side same-query comparison, and citation panel. Demo video shows the same query as Employee versus Licensed Analyst versus Steward.
 - Open-weights path: document one local run with Muse Spark Open served through an inference partner for the Best Build on Meta Open Weight Models story only if time allows. Judged path stays on Meta Model API.
 - Public repo from day one. Three-minute video shows only hackathon-built agents, UI, and corpus.

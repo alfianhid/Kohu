@@ -4,7 +4,7 @@ Outputs (stamped DEMO DATA - FICTIONAL on every slide):
   corpus/product-deck.pptx   10 slides, product overview
   corpus/sales-deck.pptx      8 slides, sales review; slide 7 holds the seeded
                               Q3 figure (9.4%) that disagrees with the licensed
-                              sheet (7.1% at licensed-market.xlsx Q3-Growth!D12)
+                              sheet (7.1% at licensed-market.xlsx Q3-Growth!E12)
 Run:  python corpus/build_decks.py
 """
 import os
@@ -46,7 +46,7 @@ def build_product_deck(path):
         ("What Kohu does", ["Ingests PDFs, slides, and sheets as they are.",
                              "Role-based access incl. license coverage.",
                              "Every answer cites page, cell, or slide."]),
-        ("Ingest", ["Muse Spark parses tables, charts, scanned pages.",
+        ("Ingest", ["Local parsers extract tables, charts, scanned pages.",
                     "Chunks carry source id, license class, citation pointer."]),
         ("Agents", ["Planner, retrieval x3, policy, verifier, conflict flagger.",
                     "Run log shows every step and token use."]),
