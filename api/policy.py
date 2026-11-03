@@ -28,7 +28,7 @@ import sys
 
 HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-import migrate  # noqa: E402  (same-dir runner; ensures run tables exist)
+import migrate  # noqa: E402  (same-dir runner; once-per-process ensure)
 import planner  # noqa: E402  (run creation for the probe)
 import retrieval  # noqa: E402
 
@@ -99,7 +99,7 @@ def enforce(candidates, persona, run_id, database_url,
                 stubs.append({"source_id": sid, "license_class": lic,
                               "license": LICENSE_REGISTRY.get(sid, {}),
                               "note": "restricted source — metadata only"})
-    migrate.cmd_up(database_url)
+    migrate.ensure_up_once(database_url)
     with psycopg.connect(database_url) as conn:
         with conn.transaction():
             conn.execute(
@@ -114,7 +114,13 @@ def enforce(candidates, persona, run_id, database_url,
                     "stub_count": len(stubs),
                     "allowed_sources": sorted(
                         {c["source_id"] for c in allowed}),
-                    "stub_sources": [s["source_id"] for s in stubs]})))
+                    "stub_sources": [s["source_id"] for s in stubs],
+                    "input_tokens": sum(
+                        planner.estimate_tokens(c["text"])
+                        for c in candidates),
+                    "output_tokens": sum(
+                        planner.estimate_tokens(a["text"])
+                        for a in allowed)})))
     return {"allowed": allowed, "stubs": stubs}
 
 

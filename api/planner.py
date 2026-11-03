@@ -34,7 +34,7 @@ import uuid
 
 HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-import migrate  # noqa: E402  (same-dir runner; ensures run tables exist)
+import migrate  # noqa: E402  (same-dir runner; once-per-process ensure)
 
 REPO = HERE.parent
 DEFAULT_CORPUS = REPO / "corpus"
@@ -65,6 +65,18 @@ def load_manifest(corpus_dir):
     with open(pathlib.Path(corpus_dir) / "manifest.json",
               encoding="utf-8") as f:
         return json.load(f)
+
+
+def estimate_tokens(text):
+    """Offline word-count token estimate for run_steps (P12/A07).
+
+    Deterministic and dependency-free: whitespace-separated words.
+    Local pipeline steps log these estimates; Spark-backed steps add
+    the model API's real usage totals when the response carries them.
+    """
+    if not text:
+        return 0
+    return len(str(text).split())
 
 
 def focus_terms(query):
@@ -126,7 +138,7 @@ def plan_and_log(query, database_url, corpus_dir=DEFAULT_CORPUS,
 
     manifest = load_manifest(corpus_dir)
     run_id, subtasks = plan_query(query, manifest, run_id=run_id)
-    migrate.cmd_up(database_url)
+    migrate.ensure_up_once(database_url)
     with psycopg.connect(database_url) as conn:
         with conn.transaction():
             conn.execute(
@@ -156,6 +168,11 @@ def plan_and_log(query, database_url, corpus_dir=DEFAULT_CORPUS,
                          "anchor": s["anchor"],
                          "store": s["store"],
                          "sources": s["sources"]} for s in subtasks],
+                    "input_tokens": estimate_tokens(query),
+                    "output_tokens": estimate_tokens(json.dumps(
+                        [{"query_hint": s["query_hint"],
+                          "rationale": s["rationale"]}
+                         for s in subtasks])),
                 })))
     return run_id, subtasks
 

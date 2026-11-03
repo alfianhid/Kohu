@@ -25,7 +25,7 @@ import sys
 
 HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-import migrate  # noqa: E402  (same-dir runner; ensures run tables exist)
+import migrate  # noqa: E402  (same-dir runner; once-per-process ensure)
 import planner  # noqa: E402  (subtask definitions + run creation)
 
 REPO = HERE.parent
@@ -39,6 +39,22 @@ STOPWORDS = frozenset(
     "what was for and the a an of to in is it that with how why who which "
     "are were has have had this these those then than are was were be been "
     "or on at by from".split())
+
+# Minimum relevance score for a chunk to back a claim. score_text counts
+# matched content-term occurrences, so 0 means no shared content term with
+# the query — the chunk is irrelevant. Calibrated: the seeded Q3 evidence
+# scores well above (licensed windows 25-26, sales slide 7 scores 8) while
+# a gibberish query scores 0 on every chunk, so 1 keeps the gate
+# permissive while guaranteeing score-0 chunks never become claims.
+# Enforced where candidates turn into claims (app.ask) and where evidence
+# turns into a conflict flag (conflict.flag_conflict), not in retrieve():
+# the policy/conflict probes assert full per-persona visible sets.
+MIN_RELEVANCE_SCORE = 1
+
+
+def meets_relevance(score):
+    """True when a lexical score clears the relevance gate."""
+    return (score or 0) >= MIN_RELEVANCE_SCORE
 
 
 def load_manifest(corpus_dir):
@@ -86,6 +102,11 @@ def retrieve(query, persona, run_id, database_url, corpus_dir=DEFAULT_CORPUS,
     with per-subtask source ids and counts only — no chunk text, so the
     log itself cannot leak denied content. Raises on unknown persona or
     empty query.
+
+    No relevance filtering here: every role-allowed chunk is ranked, even
+    score-0 ones. Callers that turn candidates into claims (app.ask) or
+    into conflict evidence (conflict.flag_conflict) must apply
+    meets_relevance first, so score-0 chunks never become claims.
     """
     import psycopg
 
@@ -94,7 +115,7 @@ def retrieve(query, persona, run_id, database_url, corpus_dir=DEFAULT_CORPUS,
     manifest = load_manifest(corpus_dir)
     role_allowed = set(allowed_sources(persona, manifest))
     terms = query_terms(query)
-    migrate.cmd_up(database_url)
+    migrate.ensure_up_once(database_url)
     with psycopg.connect(database_url) as conn:
         with conn.transaction():
             rows = conn.execute(
@@ -141,7 +162,11 @@ def retrieve(query, persona, run_id, database_url, corpus_dir=DEFAULT_CORPUS,
                     "subtask_sets": logged_sets,
                     "candidate_count": len(candidates),
                     "candidate_sources": sorted(
-                        {c["source_id"] for c in candidates})}))
+                        {c["source_id"] for c in candidates}),
+                    "input_tokens": planner.estimate_tokens(query),
+                    "output_tokens": sum(
+                        planner.estimate_tokens(c["text"])
+                        for c in candidates)}))
             )
     return candidates
 

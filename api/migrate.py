@@ -21,6 +21,7 @@ import argparse
 import os
 import pathlib
 import sys
+import threading
 
 try:
     import psycopg
@@ -107,6 +108,27 @@ def cmd_up(database_url: str) -> int:
                 )
             print(f"migrate up: applied {version}")
         return 0
+
+
+# Once-per-process guard for request paths (P12/A07): the ask pipeline
+# used to call cmd_up from every module on every request (planner,
+# retrieval, policy, conflict — 5+ migration runs per ask). Request code
+# calls ensure_up_once instead: the migration runs at most once per
+# database URL per process (server startup covers the steady state, so
+# requests perform no migration runs at all). Failures propagate and are
+# never cached, so a DB-down request still surfaces as unavailable.
+_ensured_urls = set()
+_ensured_lock = threading.Lock()
+
+
+def ensure_up_once(database_url: str) -> int:
+    with _ensured_lock:
+        if database_url in _ensured_urls:
+            return 0
+    rc = cmd_up(database_url)
+    with _ensured_lock:
+        _ensured_urls.add(database_url)
+    return rc
 
 
 def cmd_down(database_url: str, steps: int) -> int:

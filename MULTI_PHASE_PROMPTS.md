@@ -11,7 +11,7 @@ P00 Meta console gate (no code): "Verify in the Meta Model API console and repor
 
 P01 Commit and docs truth (B): "Commit and push api/, corpus/, ui/, seed.sh, video/ so a fresh clone contains the built code, then fix stale judge-visible docs: README year and pre-build status, PROJECT judging dates, and every claim that Muse Spark parses all files or that pgvector search works (embeddings are NULL today). Verify: fresh clone + ./seed.sh reaches 61 chunks, and grep finds no doc claim the code cannot back."
 
-P02 Credits (Shared, human): "Both builders claim the $150 Meta Model API credit individually before Nov 4 9:00 PM ET and set a spend limit. Verify: both confirm claimed in chat. No code."
+P02 Credits (Shared, human) — [x] DONE 2026-11-02: "Both builders claim the $150 Meta Model API credit individually before Nov 4 9:00 PM ET and set a spend limit. Verify: both confirm claimed in chat. No code."
 
 ## Phase 1 — Make the ask path agentic (Days 1–2, A)
 

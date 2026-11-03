@@ -45,8 +45,28 @@ def _parse_pointer(citation):
     return (None, str(ptr).strip(), None)
 
 
+def _cell_in_range(cell_range, cell_pointer):
+    """True when a window pointer contains a single-cell pointer.
+
+    Both are ``Sheet!...`` pointers, e.g. window ``Q3-Growth!A2:F21``
+    contains cell ``Q3-Growth!E12``.
+    """
+    win = re.fullmatch(r"(.+)!([A-Z]+)(\d+):([A-Z]+)(\d+)",
+                       cell_range or "")
+    cel = re.fullmatch(r"(.+)!([A-Z]+)(\d+)", cell_pointer or "")
+    if not win or not cel or win.group(1) != cel.group(1):
+        return False
+    _, c1, r1, c2, r2 = win.groups()
+    _, col, row = cel.groups()
+    return c1 <= col <= c2 and int(r1) <= int(row) <= int(r2)
+
+
 def resolve_citation(citation, source_id, conn):
-    """Fetch the cited chunk row, or None when unresolvable."""
+    """Fetch the cited chunk row, or None when unresolvable.
+
+    A single-cell pointer (``Sheet!E12``) resolves to the chunk whose
+    window contains that cell; a window pointer must match exactly.
+    """
     if not citation or not source_id:
         return None
     triple = _parse_pointer(citation)
@@ -63,10 +83,21 @@ def resolve_citation(citation, source_id, conn):
             "SELECT id, source_id, text, page, cell_range, slide "
             "FROM chunks WHERE source_id = %s AND slide = %s",
             (source_id, slide)).fetchone()
-    return conn.execute(
+    row = conn.execute(
         "SELECT id, source_id, text, page, cell_range, slide "
         "FROM chunks WHERE source_id = %s AND cell_range = %s",
         (source_id, cell_range)).fetchone()
+    if row is not None:
+        return row
+    if re.fullmatch(r".+![A-Z]+\d+", cell_range or ""):
+        rows = conn.execute(
+            "SELECT id, source_id, text, page, cell_range, slide "
+            "FROM chunks WHERE source_id = %s AND cell_range IS NOT NULL",
+            (source_id,)).fetchall()
+        for candidate in rows:
+            if _cell_in_range(candidate[4], cell_range):
+                return candidate
+    return None
 
 
 def verify_claims(claims, run_id, database_url):
@@ -100,11 +131,17 @@ def verify_claims(claims, run_id, database_url):
                 terms = set(retrieval.query_terms(text))
                 chunk_terms = set(retrieval.query_terms(row[2]))
                 if terms & chunk_terms:
+                    # Keep a pinpointed single-cell pointer when it
+                    # resolved into this chunk's window; otherwise use
+                    # the chunk's canonical citation.
+                    canonical = retrieval.citation_for(row)["pointer"]
+                    pointer = canonical
+                    if _cell_in_range(canonical, cite.get("pointer")):
+                        pointer = cite["pointer"]
                     verified.append({
                         "text": text,
                         "citation": {"source_id": row[1],
-                                     "pointer": retrieval.citation_for(
-                                         row)["pointer"]}})
+                                     "pointer": pointer}})
                     continue
                 reason = "unsupported"
             dropped.append({"text": text,
@@ -120,7 +157,13 @@ def verify_claims(claims, run_id, database_url):
                     "verified_count": len(verified),
                     "dropped_count": len(dropped),
                     "drop_reasons": sorted(
-                        {d["reason"] for d in dropped})})) )
+                        {d["reason"] for d in dropped}),
+                    "input_tokens": sum(
+                        planner.estimate_tokens(c.get("text"))
+                        for c in claims),
+                    "output_tokens": sum(
+                        planner.estimate_tokens(v["text"])
+                        for v in verified)})) )
     return {"verified": verified, "dropped": dropped}
 
 
@@ -157,7 +200,23 @@ def cmd_probe(database_url, corpus_dir):
                       "pointer": good["citation"]["pointer"]}},
     ]
     res = verify_claims(claims, run_id, database_url, )
+    exact = verify_claims([
+        {"text": "Product X | All regions | 4.1 | 6.2 | 7.1 | 8.0",
+         "citation": {"source_id": "licensed-market",
+                      "pointer": "Q3-Growth!E12"}},
+        {"text": "Product X | All regions | 4.1 | 6.2 | 7.1 | 8.0",
+         "citation": {"source_id": "licensed-market",
+                      "pointer": "Q3-Growth!E999"}}], run_id, database_url)
     ok = True
+    ok &= _check("single-cell E12 citation resolves and is preserved",
+                 len(exact["verified"]) == 1
+                 and exact["verified"][0]["citation"] == {
+                     "source_id": "licensed-market",
+                     "pointer": "Q3-Growth!E12"}
+                 and len(exact["dropped"]) == 1
+                 and exact["dropped"][0]["reason"]
+                 == "unresolvable-citation",
+                 "exact=%s" % exact)
     ok &= _check("grounded claim verified with citation",
                  len(res["verified"]) == 1
                  and res["verified"][0]["text"] == good_claim["text"],
